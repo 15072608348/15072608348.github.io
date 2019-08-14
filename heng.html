@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>旋转木马</title>
+    <style>
+        /*初始化  reset*/
+        blockquote,
+        body,
+        button,
+        dd,
+        dl,
+        dt,
+        fieldset,
+        form,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        hr,
+        input,
+        legend,
+        li,
+        ol,
+        p,
+        pre,
+        td,
+        textarea,
+        th,
+        ul {
+            margin: 0;
+            padding: 0
+        }
+
+        body,
+        button,
+        input,
+        select,
+        textarea {
+            font: 12px/1.5 "Microsoft YaHei", "微软雅黑", SimSun, "宋体", sans-serif;
+            color: #666;
+        }
+
+        body {
+            background: url(./img/01.jpg);
+        }
+
+        ol,
+        ul {
+            list-style: none
+        }
+
+        a {
+            text-decoration: none
+        }
+
+        fieldset,
+        img {
+            border: 0;
+            vertical-align: top;
+        }
+
+        a,
+        input,
+        button,
+        select,
+        textarea {
+            outline: none;
+        }
+
+        a,
+        button {
+            cursor: pointer;
+        }
+
+        .wrap {
+            width: 1200px;
+            margin: 100px auto;
+            /* border: 1px solid red; */
+        }
+
+        .slide {
+            height: 500px;
+            position: relative;
+        }
+
+        .slide li {
+            position: absolute;
+            left: 200px;
+            top: 0;
+        }
+
+        .slide li img {
+            width: 100%;
+            /*让图片的大小和父盒子一样的大，要不然会出问题，会撑出父盒子*/
+        }
+
+        .arrow {
+            display: none;
+        }
+
+        .prev,
+        .next {
+            width: 76px;
+            height: 112px;
+            position: absolute;
+            top: 50%;
+            margin-top: -56px;
+            /*background-color: red;*/
+            background: url(img/prev.png) no-repeat;
+            z-index: 99;
+        }
+
+        .next {
+            right: 0;
+            background-image: url(img/next.png);
+        }
+
+
+        .slide .one {
+            width: 400px;
+            top: 20px;
+            left: 50px;
+            opacity: 0.2;
+            z-index: 2
+        }
+
+        .slide .two {
+            width: 600px;
+            top: 70px;
+            left: 0px;
+            opacity: 0.8;
+            z-index: 3
+        }
+
+        .slide .three {
+            width: 800px;
+            top: 100px;
+            left: 200px;
+            opacity: 1;
+            z-index: 4
+        }
+
+        .slide .four {
+            width: 600px;
+            top: 70px;
+            left: 600px;
+            opacity: 0.8;
+            z-index: 3
+        }
+
+        .slide .five {
+            width: 400px;
+            top: 20px;
+            left: 750px;
+            opacity: 0.2;
+            z-index: 2
+        }
+    </style>
+    
+</head>
+
+<body>
+    <div class="wrap" id="wrap">
+        <div class="slide" id="slide">
+            <ul id="ul1">
+                <li class="one"><a href="#"><img src="./img/02.jpg" alt="" /></a></li>
+                <li class="two"><a href="#"><img src="./img/03.jpg" alt="" /></a></li>
+                <li class="three"><a href="#"><img src="./img/04.jpg" alt="" /></a></li>
+                <li class="four"><a href="#"><img src="./img/05.jpg" alt="" /></a></li>
+                <li class="five"><a href="#"><img src="./img/06.jpg" alt="" /></a></li>
+                <li class="five"><a href="#"><img src="./img/07.jpg" alt="" /></a></li>
+                <li class="five"><a href="#"><img src="./img/08.jpg" alt="" /></a></li>
+            </ul>
+            <div class="arrow" id="arrow">
+                <a href="javascript:;" class="prev" id="arrLeft"></a>
+                <a href="javascript:;" class="next" id="arrRight"></a>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="./animation.js"></script>
+    <script>
+
+        /*旋转木马核心思路：让每一个元素的样式交换
+           下一页： 将数组的最后一个元素移动到最前面
+           上一页： 将数组的第一个元素移动到最后面
+         */
+
+        //0.将每一个元素样式放入数组中
+        var config = [
+            {
+                "width": 400,
+                "top": 20,
+                "left": 50,
+                "opacity": 0.4,
+                "zIndex": 2
+            },//0
+            {
+                "width": 600,
+                "top": 70,
+                "left": 0,
+                "opacity": 0.8,
+                "zIndex": 3
+            },//1
+            {
+                "width": 800,
+                "top": 100,
+                "left": 200,
+                "opacity": 1,
+                "zIndex": 4
+            },//2
+            {
+                "width": 600,
+                "top": 70,
+                "left": 600,
+                "opacity": 0.8,
+                "zIndex": 3
+            },//3
+            {
+                "width": 400,
+                "top": 20,
+                "left": 750,
+                "opacity": 0.4,
+                "zIndex": 2
+            },//4
+
+            {
+                "width": 200,
+                "top": 20,
+                "left": 750,
+                "opacity": 0.2,
+                "zIndex": 2
+            },//5
+            {
+                "width": 200,
+                "top": 20,
+                "left": 750,
+                "opacity": 0.2,
+                "zIndex": 2
+            },//6
+            
+        ];
+
+        console.log(config);
+
+
+        //1.获取元素
+        var wrap = document.getElementById('wrap');//最外面盒子
+        var arrow = document.getElementById('arrow');//上一页下一页盒子
+        var arrLeft = document.getElementById('arrLeft');//上一页
+        var arrRight = document.getElementById('arrRight');//下一页
+        var ul1 = document.getElementById('ul1');//图片列表
+        //2.注册事件
+
+        //2.1 移入
+        wrap.onmouseover = function () {
+            //3.事件处理:
+            zIndex=9;
+            arrow.style.display = 'block';
+        };
+
+        //2.2 移出
+        wrap.onmouseout = function () {
+            //3.事件处理:
+            arrow.style.display = 'none';
+        };
+
+        //2.3 下一页
+        arrRight.onclick = function () {
+            //3.1 交换样式：将数组的最后一个元素移动到最前面
+            config.unshift(config.pop());
+            //3.2 开始动画
+            for (var i = 0; i < ul1.children.length; i++) {
+                animationSlow(ul1.children[i], config[i]);
+            };
+        };
+
+        //2.4 上一页
+        arrLeft.onclick = function () {
+            //3.1 交换样式：将数组的第一个元素移动到最后面
+            config.push(config.shift());
+            //3.2 开始动画
+            for (var i = 0; i < ul1.children.length; i++) {
+                animationSlow(ul1.children[i], config[i]);
+            };
+        };
+
+    </script>
+</body>
+
+</html>
